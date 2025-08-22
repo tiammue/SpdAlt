@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { useGPSTracking } from '../hooks/useGPSTracking';
 
 export interface GPSData {
@@ -82,7 +82,6 @@ export const GPSProvider: React.FC<GPSProviderProps> = ({ children }) => {
   const {
     startLocationTracking,
     stopLocationTracking,
-    getCurrentPosition,
     requestLocationPermissions,
   } = useGPSTracking();
 

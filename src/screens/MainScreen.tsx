@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Alert,
   useColorScheme,
-  Dimensions,
   ActivityIndicator,
 } from 'react-native';
 import { useGPS } from '../contexts/GPSContext';
@@ -21,7 +20,7 @@ interface MainScreenProps {
   navigation: MainScreenNavigationProp;
 }
 
-const { width } = Dimensions.get('window');
+// const { width } = Dimensions.get('window');
 
 export const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
   const {
@@ -30,7 +29,6 @@ export const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     error,
     isTracking,
     startTracking,
-    stopTracking,
     requestPermissions,
   } = useGPS();
 
@@ -56,7 +54,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
     };
 
     initializeGPS();
-  }, []);
+  }, [requestPermissions, startTracking]);
 
 
   const formatSpeed = (speed: number | null): string => {

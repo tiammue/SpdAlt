@@ -19,7 +19,95 @@ interface SettingsScreenProps {
   navigation: SettingsScreenNavigationProp;
 }
 
-export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
+interface UnitOptionProps {
+  unitType: UnitType;
+  label: string;
+  description: string;
+  unit: UnitType;
+  themeColors: any;
+  onPress: (unitType: UnitType) => void;
+  isLoading: boolean;
+}
+
+const UnitOption: React.FC<UnitOptionProps> = ({
+  unitType,
+  label,
+  description,
+  unit: currentUnit,
+  themeColors,
+  onPress,
+  isLoading
+}) => (
+  <TouchableOpacity
+    style={[
+      styles.option,
+      {
+        backgroundColor: currentUnit === unitType ? themeColors.selectedBackground : themeColors.cardBackground,
+        borderColor: themeColors.borderColor,
+      },
+    ]}
+    onPress={() => onPress(unitType)}
+    disabled={isLoading}
+  >
+    <View style={styles.optionContent}>
+      <View>
+        <Text style={[styles.optionTitle, { color: themeColors.textColor }]}>{label}</Text>
+        <Text style={[styles.optionDescription, { color: themeColors.secondaryTextColor }]}>
+          {description}
+        </Text>
+      </View>
+      {currentUnit === unitType && (
+        <Text style={[styles.checkmark, { color: themeColors.primaryColor }]}>✓</Text>
+      )}
+    </View>
+  </TouchableOpacity>
+);
+
+interface ThemeOptionProps {
+  themeType: ThemeType;
+  label: string;
+  description: string;
+  theme: ThemeType;
+  themeColors: any;
+  onPress: (themeType: ThemeType) => void;
+  isLoading: boolean;
+}
+
+const ThemeOption: React.FC<ThemeOptionProps> = ({
+  themeType,
+  label,
+  description,
+  theme: currentTheme,
+  themeColors,
+  onPress,
+  isLoading
+}) => (
+  <TouchableOpacity
+    style={[
+      styles.option,
+      {
+        backgroundColor: currentTheme === themeType ? themeColors.selectedBackground : themeColors.cardBackground,
+        borderColor: themeColors.borderColor,
+      },
+    ]}
+    onPress={() => onPress(themeType)}
+    disabled={isLoading}
+  >
+    <View style={styles.optionContent}>
+      <View>
+        <Text style={[styles.optionTitle, { color: themeColors.textColor }]}>{label}</Text>
+        <Text style={[styles.optionDescription, { color: themeColors.secondaryTextColor }]}>
+          {description}
+        </Text>
+      </View>
+      {currentTheme === themeType && (
+        <Text style={[styles.checkmark, { color: themeColors.primaryColor }]}>✓</Text>
+      )}
+    </View>
+  </TouchableOpacity>
+);
+
+export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation: _navigation }) => {
   const { unit, theme, setUnit, setTheme, isLoading } = useSettings();
   const systemColorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
@@ -56,65 +144,6 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
     }
   };
 
-  const UnitOption: React.FC<{ unitType: UnitType; label: string; description: string }> = ({
-    unitType,
-    label,
-    description,
-  }) => (
-    <TouchableOpacity
-      style={[
-        styles.option,
-        {
-          backgroundColor: unit === unitType ? themeColors.selectedBackground : themeColors.cardBackground,
-          borderColor: themeColors.borderColor,
-        },
-      ]}
-      onPress={() => handleUnitChange(unitType)}
-      disabled={isLoading}
-    >
-      <View style={styles.optionContent}>
-        <View>
-          <Text style={[styles.optionTitle, { color: themeColors.textColor }]}>{label}</Text>
-          <Text style={[styles.optionDescription, { color: themeColors.secondaryTextColor }]}>
-            {description}
-          </Text>
-        </View>
-        {unit === unitType && (
-          <Text style={[styles.checkmark, { color: themeColors.primaryColor }]}>✓</Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-
-  const ThemeOption: React.FC<{ themeType: ThemeType; label: string; description: string }> = ({
-    themeType,
-    label,
-    description,
-  }) => (
-    <TouchableOpacity
-      style={[
-        styles.option,
-        {
-          backgroundColor: theme === themeType ? themeColors.selectedBackground : themeColors.cardBackground,
-          borderColor: themeColors.borderColor,
-        },
-      ]}
-      onPress={() => handleThemeChange(themeType)}
-      disabled={isLoading}
-    >
-      <View style={styles.optionContent}>
-        <View>
-          <Text style={[styles.optionTitle, { color: themeColors.textColor }]}>{label}</Text>
-          <Text style={[styles.optionDescription, { color: themeColors.secondaryTextColor }]}>
-            {description}
-          </Text>
-        </View>
-        {theme === themeType && (
-          <Text style={[styles.checkmark, { color: themeColors.primaryColor }]}>✓</Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
 
   return (
     <ScrollView
@@ -142,11 +171,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
             unitType="kmh"
             label="Kilometers per hour (km/h)"
             description="Standard metric unit"
+            unit={unit}
+            themeColors={themeColors}
+            onPress={handleUnitChange}
+            isLoading={isLoading}
           />
           <UnitOption
             unitType="mph"
             label="Miles per hour (mph)"
             description="Imperial unit"
+            unit={unit}
+            themeColors={themeColors}
+            onPress={handleUnitChange}
+            isLoading={isLoading}
           />
         </View>
       </View>
@@ -165,16 +202,28 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) =>
             themeType="light"
             label="Light"
             description="Always use light theme"
+            theme={theme}
+            themeColors={themeColors}
+            onPress={handleThemeChange}
+            isLoading={isLoading}
           />
           <ThemeOption
             themeType="dark"
             label="Dark"
             description="Always use dark theme"
+            theme={theme}
+            themeColors={themeColors}
+            onPress={handleThemeChange}
+            isLoading={isLoading}
           />
           <ThemeOption
             themeType="system"
             label="System"
             description="Follow system theme setting"
+            theme={theme}
+            themeColors={themeColors}
+            onPress={handleThemeChange}
+            isLoading={isLoading}
           />
         </View>
       </View>
