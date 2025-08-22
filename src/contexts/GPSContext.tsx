@@ -93,6 +93,7 @@ export const GPSProvider: React.FC<GPSProviderProps> = ({ children }) => {
       return hasPermission;
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to request permissions' });
+      dispatch({ type: 'SET_LOADING', payload: false });
       return false;
     }
   };
@@ -110,8 +111,10 @@ export const GPSProvider: React.FC<GPSProviderProps> = ({ children }) => {
         }
       );
       dispatch({ type: 'SET_TRACKING', payload: true });
+      dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to start tracking' });
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
