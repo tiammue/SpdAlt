@@ -1,0 +1,74 @@
+name: Merge Release to Main
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  merge-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Configure Git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Find latest release branch
+      id: find-branch
+      run: |
+        # Get the release tag name (e.g., v1.0.0)
+        RELEASE_TAG=${GITHUB_REF#refs/tags/}
+        echo "Release tag: $RELEASE_TAG"
+
+        # Look for release branch matching the tag (without 'v' prefix if present)
+        BRANCH_NAME="release/${RELEASE_TAG#v}"
+        echo "Looking for branch: $BRANCH_NAME"
+
+        # Check if the branch exists
+        if git ls-remote --heads origin $BRANCH_NAME | grep -q $BRANCH_NAME; then
+          echo "Found release branch: $BRANCH_NAME"
+          echo "branch=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        else
+          echo "Release branch $BRANCH_NAME not found"
+          # Try to find the latest release branch
+          LATEST_BRANCH=$(git ls-remote --heads origin | grep 'refs/heads/release/' | sort -V | tail -1 | cut -d/ -f3-)
+          if [ -n "$LATEST_BRANCH" ]; then
+            echo "Using latest release branch: $LATEST_BRANCH"
+            echo "branch=$LATEST_BRANCH" >> $GITHUB_OUTPUT
+          else
+            echo "No release branches found"
+            exit 1
+          fi
+        fi
+
+    - name: Merge release branch into main
+      run: |
+        BRANCH_NAME="${{ steps.find-branch.outputs.branch }}"
+        echo "Merging branch: $BRANCH_NAME into main"
+
+        # Fetch the release branch
+        git fetch origin $BRANCH_NAME
+
+        # Merge the release branch into main
+        if git merge origin/$BRANCH_NAME --no-ff -m "Merge release branch $BRANCH_NAME into main [skip ci]"; then
+          echo "Merge successful"
+        else
+          echo "Merge conflict detected"
+          git status
+          exit 1
+        fi
+
+    - name: Push changes to main
+      run: |
+        git push origin main
+        echo "Successfully merged release branch into main"
