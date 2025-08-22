@@ -100,7 +100,12 @@ export const GPSProvider: React.FC<GPSProviderProps> = ({ children }) => {
 
   const startTracking = async () => {
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      // Only set loading to true if we don't have any location data yet
+      const hasExistingData = state.data.latitude !== null || state.data.longitude !== null;
+      if (!hasExistingData) {
+        dispatch({ type: 'SET_LOADING', payload: true });
+      }
+
       await startLocationTracking(
         (locationData) => {
           dispatch({ type: 'UPDATE_LOCATION', payload: locationData });
@@ -108,10 +113,15 @@ export const GPSProvider: React.FC<GPSProviderProps> = ({ children }) => {
         (error) => {
           dispatch({ type: 'SET_ERROR', payload: error.message || 'Location tracking error' });
           dispatch({ type: 'SET_TRACKING', payload: false });
+          dispatch({ type: 'SET_LOADING', payload: false });
         }
       );
       dispatch({ type: 'SET_TRACKING', payload: true });
-      dispatch({ type: 'SET_LOADING', payload: false });
+
+      // Set a timeout to stop loading if no location data is received within 10 seconds
+      setTimeout(() => {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }, 10000);
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to start tracking' });
       dispatch({ type: 'SET_LOADING', payload: false });

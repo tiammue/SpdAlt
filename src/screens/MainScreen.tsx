@@ -158,7 +158,7 @@ export const MainScreen: React.FC<MainScreenProps> = ({ navigation }) => {
       </View>
 
       {/* Loading State */}
-      {isLoading && (
+      {isLoading && !data.latitude && !data.longitude && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={themeColors.primaryColor} />
           <Text style={[styles.loadingText, { color: themeColors.textColor }]}>
