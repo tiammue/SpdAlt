@@ -1,5 +1,6 @@
 // Mock AsyncStorage
 /* eslint-env jest */
+// Setup file for Jest testing configuration
 import mockAsyncStorage from '@react-native-async-storage/async-storage/jest/async-storage-mock';
 
 jest.mock('@react-native-async-storage/async-storage', () => mockAsyncStorage);
